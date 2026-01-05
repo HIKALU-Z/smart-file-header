@@ -56,7 +56,9 @@
         "default": {
           "python": "# ${fileName}\n# Author: ${author}\n# Date: ${date}\n# Version: ${version}\n# Description: ${description}\n",
           "java": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
-          "html": "<!--\n  File: ${fileName}\n  Author: ${author}\n  Date: ${date}\n  Version: ${version}\n  Description: ${description}\n-->\n"
+          "html": "<!--\n  File: ${fileName}\n  Author: ${author}\n  Date: ${date}\n  Version: ${version}\n  Description: ${description}\n-->\n",
+          "javascript": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
+          "typescript": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n"
         },
         "description": "Language-specific header templates. Key is VS Code language ID (e.g., 'python', 'javascript'). Overrides defaultTemplate."
       },
@@ -98,15 +100,18 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.107.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.48.1",
-    "eslint": "^9.39.1",
+    "@types/vscode": "^1.107.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.1",
+    "eslint": "^9.39.1",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.48.1"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.19"
   }
 }
