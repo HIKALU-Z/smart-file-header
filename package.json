@@ -1,87 +1,59 @@
 {
-  "name": "file-header-extension",
-  "displayName": "file-header-extension",
-  "description": "Automatically adds a configurable file header to new files.",
+  "name": "smart-file-header",
+  "displayName": "Smart File Header",
+  "description": "Insert and auto-update file header comments with author and time info.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.107.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "file-header-extension.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "myFileHeader.insertHeader",
-        "title": "My File Header: Insert Header Manually"
+        "command": "smart-file-header.insertHeader",
+        "title": "smart-file-header:Insert File Header Comment"
       }
     ]
   },
   "configuration": {
-    "title": "My File Header Configuration",
+    "type": "object",
+    "title": "Smart File Header Configuration",
     "properties": {
-      "myFileHeader.enabled": {
+      "smartFileHeader.author": {
+        "type": "string",
+        "default": "",
+        "description": "Your name. If empty, will try to use 'git config user.name'."
+      },
+      "smartFileHeader.email": {
+        "type": "string",
+        "default": "",
+        "description": "Your email. If empty, will try to use 'git config user.email'."
+      },
+      "smartFileHeader.lastEditors": {
         "type": "boolean",
         "default": true,
-        "description": "Enable/disable automatic file header insertion."
+        "description": "Whether to add/update the 'LastEditors' field."
       },
-      "myFileHeader.author": {
+      "smartFileHeader.lastEditTime": {
+        "type": "boolean",
+        "default": true,
+        "description": "Whether to add/update the 'LastEditTime' field."
+      },
+      "smartFileHeader.dateFormat": {
         "type": "string",
-        "default": "Your Name",
-        "description": "Default author name for file headers."
+        "default": "YYYY-MM-DD HH:mm:ss",
+        "description": "Date format for LastEditTime. Supports YYYY, MM, DD, HH, mm, ss."
       },
-      "myFileHeader.version": {
-        "type": "string",
-        "default": "1.0.0",
-        "description": "Default version for file headers."
-      },
-      "myFileHeader.description": {
-        "type": "string",
-        "default": "A brief description of the file.",
-        "description": "Default description for file headers. Can be empty."
-      },
-      "myFileHeader.defaultTemplate": {
-        "type": "string",
-        "default": "/**\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
-        "description": "Default file header template. Supports ${fileName}, ${author}, ${date}, ${version}, ${description}."
-      },
-      "myFileHeader.languageTemplates": {
-        "type": "object",
-        "default": {
-          "python": "# ${fileName}\n# Author: ${author}\n# Date: ${date}\n# Version: ${version}\n# Description: ${description}\n",
-          "java": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
-          "html": "<!--\n  File: ${fileName}\n  Author: ${author}\n  Date: ${date}\n  Version: ${version}\n  Description: ${description}\n-->\n",
-          "javascript": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
-          "typescript": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n"
-        },
-        "description": "Language-specific header templates. Key is VS Code language ID (e.g., 'python', 'javascript'). Overrides defaultTemplate."
-      },
-      "myFileHeader.excludeLanguages": {
-        "type": "array",
-        "default": [
-          "markdown",
-          "json",
-          "log",
-          "yaml",
-          "xml"
-        ],
-        "description": "List of language IDs to exclude from automatic header insertion."
-      },
-      "myFileHeader.maxFileSizeKB": {
-        "type": "number",
-        "default": 20,
-        "description": "Maximum file size in KB for automatic header insertion. Files larger than this will be ignored."
-      },
-      "myFileHeader.dateFormat": {
-        "type": "string",
-        "default": "YYYY-MM-DD",
-        "description": "Date format string. Uses moment.js style formatting (e.g., YYYY-MM-DD, YYYY/MM/DD HH:mm:ss)."
+      "smartFileHeader.autoInsertOnSave": {
+        "type": "boolean",
+        "default": false,
+        "description": "Automatically insert a header comment on save if the file doesn't have one."
       }
     }
   },
