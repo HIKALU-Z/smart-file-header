@@ -1,0 +1,112 @@
+{
+  "name": "file-header-extension",
+  "displayName": "file-header-extension",
+  "description": "Automatically adds a configurable file header to new files.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "file-header-extension.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "myFileHeader.insertHeader",
+        "title": "My File Header: Insert Header Manually"
+      }
+    ]
+  },
+  "configuration": {
+    "title": "My File Header Configuration",
+    "properties": {
+      "myFileHeader.enabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable/disable automatic file header insertion."
+      },
+      "myFileHeader.author": {
+        "type": "string",
+        "default": "Your Name",
+        "description": "Default author name for file headers."
+      },
+      "myFileHeader.version": {
+        "type": "string",
+        "default": "1.0.0",
+        "description": "Default version for file headers."
+      },
+      "myFileHeader.description": {
+        "type": "string",
+        "default": "A brief description of the file.",
+        "description": "Default description for file headers. Can be empty."
+      },
+      "myFileHeader.defaultTemplate": {
+        "type": "string",
+        "default": "/**\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
+        "description": "Default file header template. Supports ${fileName}, ${author}, ${date}, ${version}, ${description}."
+      },
+      "myFileHeader.languageTemplates": {
+        "type": "object",
+        "default": {
+          "python": "# ${fileName}\n# Author: ${author}\n# Date: ${date}\n# Version: ${version}\n# Description: ${description}\n",
+          "java": "/*\n * @file ${fileName}\n * @author ${author}\n * @date ${date}\n * @version ${version}\n * @description ${description}\n */\n",
+          "html": "<!--\n  File: ${fileName}\n  Author: ${author}\n  Date: ${date}\n  Version: ${version}\n  Description: ${description}\n-->\n"
+        },
+        "description": "Language-specific header templates. Key is VS Code language ID (e.g., 'python', 'javascript'). Overrides defaultTemplate."
+      },
+      "myFileHeader.excludeLanguages": {
+        "type": "array",
+        "default": [
+          "markdown",
+          "json",
+          "log",
+          "yaml",
+          "xml"
+        ],
+        "description": "List of language IDs to exclude from automatic header insertion."
+      },
+      "myFileHeader.maxFileSizeKB": {
+        "type": "number",
+        "default": 20,
+        "description": "Maximum file size in KB for automatic header insertion. Files larger than this will be ignored."
+      },
+      "myFileHeader.dateFormat": {
+        "type": "string",
+        "default": "YYYY-MM-DD",
+        "description": "Date format string. Uses moment.js style formatting (e.g., YYYY-MM-DD, YYYY/MM/DD HH:mm:ss)."
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.107.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.48.1",
+    "eslint": "^9.39.1",
+    "esbuild": "^0.27.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
