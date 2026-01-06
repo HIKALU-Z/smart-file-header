@@ -2,9 +2,14 @@
   "name": "smart-file-header",
   "displayName": "Smart File Header",
   "description": "Insert and auto-update file header comments with author and time info.",
-  "version": "0.0.1",
+  "publisher": "hikalu",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HIKALU-Z/smart-file-header.git"
+  },
+  "version": "1.0.1",
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.107.0"
   },
   "categories": [
     "Other"
@@ -13,6 +18,7 @@
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
+  "icon": "./logo.png",
   "contributes": {
     "commands": [
       {
@@ -45,6 +51,11 @@
         "default": true,
         "description": "Whether to add/update the 'LastEditTime' field."
       },
+      "smartFileHeader.copyright": {
+        "type": "boolean",
+        "default": true,
+        "description": "Whether to add/update the 'Copyright' field."
+      },
       "smartFileHeader.dateFormat": {
         "type": "string",
         "default": "YYYY-MM-DD HH:mm:ss",
@@ -54,6 +65,11 @@
         "type": "boolean",
         "default": false,
         "description": "Automatically insert a header comment on save if the file doesn't have one."
+      },
+      "smartFileHeader.alignFields": {
+        "type": "boolean",
+        "default": true,
+        "description": "Align the header fields (e.g., @Author, @Date) to the same width for better readability."
       }
     }
   },

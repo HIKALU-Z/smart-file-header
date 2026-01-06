@@ -1,32 +1,106 @@
+/*
+ * Copyright (c) 2026 hikalu
+ *
+ * @Script: extension.ts
+ * @Author: hikalu
+ * @Email: play3a@126.com
+ * @Create At: 2026-01-06 14:11:35
+ * @Last Modified By: hikalu
+ * @Last Modified At: 2026-01-06 14:12:58
+ * @Description: This is description.
+ */
+
 import * as vscode from "vscode";
+import * as fs from "fs";
 import * as cp from "child_process";
 import { promisify } from "util";
 
 const exec = promisify(cp.exec);
 
-// 定义不同语言的注释模板
-const TEMPLATES: Record<string, string> = {
-  javascript: `/**
- * @Author: {{author}}
- * @Email: {{email}}
- * @Date: {{createTime}}
- * @LastEditors: {{author}}
- * @LastEditTime: {{lastEditTime}}
- * @Copyright: {{author}} All Rights Reserved
- * @Description: 
- */`,
-  typescript: `/**
- * @Author: {{author}}
- * @Email: {{email}}
- * @Date: {{createTime}}
- * @LastEditors: {{author}}
- * @LastEditTime: {{lastEditTime}}
- * @Copyright: {{author}} All Rights Reserved
- * @Description: 
- */`,
-  // 可以继续添加更多语言...
+// 新的模板结构：按语言定义字段列表
+interface HeaderField {
+  key: string; // 如 'Author'
+  placeholder: string; // 如 '{{author}}'
+  showIf?: (config: vscode.WorkspaceConfiguration) => boolean; // 可选的显示条件
+}
+// 模板对象
+const FIELD_TEMPLATES: Record<string, HeaderField[]> = {
+  javascript: [
+    { key: "Author", placeholder: "{{author}}" },
+    { key: "Email", placeholder: "{{email}}" },
+    { key: "Date", placeholder: "{{createTime}}" },
+    {
+      key: "LastEditors",
+      placeholder: "{{author}}",
+      showIf: (c) => c.get("lastEditors", true),
+    },
+    {
+      key: "LastEditTime",
+      placeholder: "{{lastEditTime}}",
+      showIf: (c) => c.get("lastEditTime", true),
+    },
+    {
+      key: "Copyright",
+      placeholder: "{{currentYear}} {{author}} All Rights Reserved",
+      showIf: (c) => c.get("copyright", true),
+    },
+    { key: "Description", placeholder: "" },
+  ],
+  typescript: [
+    { key: "Author", placeholder: "{{author}}" },
+    { key: "Email", placeholder: "{{email}}" },
+    { key: "Date", placeholder: "{{createTime}}" },
+    {
+      key: "LastEditors",
+      placeholder: "{{author}}",
+      showIf: (c) => c.get("lastEditors", true),
+    },
+    {
+      key: "LastEditTime",
+      placeholder: "{{lastEditTime}}",
+      showIf: (c) => c.get("lastEditTime", true),
+    },
+    {
+      key: "Copyright",
+      placeholder: "Copyright (c) {{currentYear}} {{author}} All Rights Reserved",
+      showIf: (c) => c.get("copyright", true),
+    },
+    { key: "Description", placeholder: "" },
+  ],
+  python: [
+    { key: "Author", placeholder: "{{author}}" },
+    { key: "Email", placeholder: "{{email}}" },
+    { key: "Date", placeholder: "{{createTime}}" },
+    {
+      key: "LastEditors",
+      placeholder: "{{author}}",
+      showIf: (c) => c.get("lastEditors", true),
+    },
+    {
+      key: "LastEditTime",
+      placeholder: "{{lastEditTime}}",
+      showIf: (c) => c.get("lastEditTime", true),
+    },
+    { key: "Description", placeholder: "" },
+  ],
+  java: [
+    { key: "Author", placeholder: "{{author}}" },
+    { key: "Email", placeholder: "{{email}}" },
+    { key: "Date", placeholder: "{{createTime}}" },
+    {
+      key: "LastEditors",
+      placeholder: "{{author}}",
+      showIf: (c) => c.get("lastEditors", true),
+    },
+    {
+      key: "LastEditTime",
+      placeholder: "{{lastEditTime}}",
+      showIf: (c) => c.get("lastEditTime", true),
+    },
+    { key: "Description", placeholder: "" },
+  ],
+  // 可以继续为其他语言添加...
 };
-
 // 工具函数：格式化日期
 function formatDate(date: Date, format: string): string {
   const map: Record<string, string> = {
@@ -39,12 +113,106 @@ function formatDate(date: Date, format: string): string {
   };
   return format.replace(/YYYY|MM|DD|HH|mm|ss/g, (matched) => map[matched]);
 }
+/**
+ * 根据字段列表生成格式化后的头部注释。
+ */
+function renderAlignedHeader(
+  languageId: string,
+  fields: HeaderField[],
+  config: vscode.WorkspaceConfiguration,
+  author: string,
+  email: string,
+  createTime: string,
+  lastEditTime: string
+): string | null {
+  const shouldAlign = config.get<boolean>("alignFields", true);
 
+  // 1. 过滤掉根据配置不需要显示的字段
+  const visibleFields = fields.filter((field) => {
+    if (field.showIf) {
+      return field.showIf(config);
+    }
+    return true;
+  });
+
+  if (visibleFields.length === 0) {
+    return null;
+  }
+
+  // 2. 计算最长的字段名（加上 '@' 前缀）
+  const prefix = languageId === "python" ? "#" : "*";
+  const atPrefixedKeys = visibleFields.map((f) => `@${f.key}`);
+  const maxWidth = Math.max(...atPrefixedKeys.map((key) => key.length)) + 1;
+
+  // 3. 构建每一行
+  const commentLines: string[] = [];
+
+  // 添加注释开始符（如果是块注释）
+  if (languageId !== "python") {
+    commentLines.push("/***");
+  }
+
+  for (let i = 0; i < visibleFields.length; i++) {
+    const field = visibleFields[i];
+    const atKey = `@${field.key}`;
+
+    // 对齐逻辑：如果启用了对齐，则用空格补齐到 maxWidth
+    const paddedKey = shouldAlign ? atKey.padEnd(maxWidth) : atKey;
+
+    // 替换占位符
+    let value = field.placeholder
+      .replace(/{{author}}/g, author)
+      .replace(/{{email}}/g, email)
+      .replace(/{{createTime}}/g, createTime)
+      .replace(/{{lastEditTime}}/g, lastEditTime)
+      .replace(/{{currentYear}}/g, new Date().getFullYear().toString());
+
+    // 构建完整行
+    const line =
+      languageId === "python"
+        ? `${prefix} ${paddedKey} ${value}`
+        : ` ${prefix} ${paddedKey} ${value}`;
+
+    commentLines.push(line);
+  }
+
+  // 添加注释结束符（如果是块注释）
+  if (languageId !== "python") {
+    commentLines.push(" */");
+  }
+
+  return commentLines.join("\n");
+}
+/**
+ * 尝试获取文件的创建时间（Birth Time）。
+ * @param uri 文件的 URI
+ * @returns 创建时间的 Date 对象，如果失败则返回当前时间。
+ */
+async function getFileBirthTime(uri: vscode.Uri): Promise<Date> {
+  try {
+    // 确保是本地文件
+    if (uri.scheme !== "file") {
+      return new Date();
+    }
+
+    const stats = await fs.promises.stat(uri.fsPath);
+
+    // `birthtime` 是一个 Date 对象
+    // 在支持的系统上（Windows, macOS, 部分 Linux），它代表真实的创建时间
+    // 在不支持的系统上，它可能会被设置为 ctime（状态变更时间）或 mtime（修改时间）
+    return stats.birthtime;
+  } catch (error) {
+    console.warn(`Failed to get birth time for ${uri.fsPath}:`, error);
+    // 如果出错，回退到当前时间
+    return new Date();
+  }
+}
 // 新增：工具函数，用于生成完整的头部注释字符串
 async function generateFullHeader(
   languageId: string,
   config: vscode.WorkspaceConfiguration,
-  isForNewFile: boolean = false
+  isForNewFile: boolean = false,
+  fileUri?: vscode.Uri
 ): Promise<string | null> {
   // 1. 获取作者和邮箱
   let author = config.get<string>("author") || "";
@@ -59,23 +227,33 @@ async function generateFullHeader(
   // 2. 获取时间
   const now = new Date();
   const timeFormat = config.get("dateFormat", "YYYY-MM-DD HH:mm:ss");
-  const createTime = isForNewFile ? formatDate(now, timeFormat) : ""; // 对于旧文件，我们可能不想预设创建时间
+  let createTime: string;
+  if (isForNewFile) {
+    createTime = formatDate(now, timeFormat);
+  } else if (fileUri) {
+    const birthTime = await getFileBirthTime(fileUri);
+    createTime = formatDate(birthTime, timeFormat);
+  } else {
+    createTime = formatDate(now, timeFormat);
+  }
   const lastEditTime = formatDate(now, timeFormat);
 
-  // 3. 获取模板
-  const template = TEMPLATES[languageId];
-  if (!template) {
+  // 3. 获取字段模板
+  const fields = FIELD_TEMPLATES[languageId];
+  if (!fields) {
     return null;
   }
 
-  // 4. 渲染模板
-  let header = template
-    .replace(/{{author}}/g, author)
-    .replace(/{{email}}/g, email)
-    .replace(/{{createTime}}/g, createTime)
-    .replace(/{{lastEditTime}}/g, lastEditTime);
-
-  return header;
+  // 4. 使用新的渲染函数
+  return renderAlignedHeader(
+    languageId,
+    fields,
+    config,
+    author,
+    email,
+    createTime,
+    lastEditTime
+  );
 }
 
 // 工具函数：尝试从 Git 获取用户名和邮箱
@@ -119,6 +297,7 @@ function hasExistingHeader(
   // 检查是否存在我们特有的标记
   return lines.some(
     (line) =>
+      line.includes("/*") ||
       line.includes("@Author") ||
       line.includes("@Date:") ||
       line.includes("@LastEditors") ||
