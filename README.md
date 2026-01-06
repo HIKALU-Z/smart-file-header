@@ -19,6 +19,8 @@ you can customize these settings in your VS Code settings.json file.
 - "smartFileHeader.copyright": use boolean to control whether to add the copyright notice for the file.
 - "smartFileHeader.dateFormat": use `YYYY-MM-DD HH:mm:ss` format strings to customize date formats.
 - "smartFileHeader.autoInsertOnSave": use boolean to control whether to automatically insert the file header on save.
+- "smartFileHeader.alignFields": use boolean to control whether to align the header fields for better readability.
+- "smartFileHeader.useColonInFields": use boolean to control whether to use a colon after header fields (e.g., '@Author: name' vs '@Author name').
 
 ### 1.0.0
 

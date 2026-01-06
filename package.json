@@ -70,6 +70,11 @@
         "type": "boolean",
         "default": true,
         "description": "Align the header fields (e.g., @Author, @Date) to the same width for better readability."
+      },
+      "smartFileHeader.useColonInFields": {
+        "type": "boolean",
+        "default": true,
+        "description": "Whether to use a colon after header fields (e.g., '@Author: name' vs '@Author name')."
       }
     }
   },

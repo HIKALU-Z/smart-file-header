@@ -6,8 +6,8 @@
  * @Email: play3a@126.com
  * @Create At: 2026-01-06 14:11:35
  * @Last Modified By: hikalu
- * @Last Modified At: 2026-01-06 14:12:58
- * @Description: This is description.
+ * @Last Modified At: 2026-01-06 15:54:28
+ * @Description: A simple VSCode extension to insert and update file header comments.
  */
 
 import * as vscode from "vscode";
@@ -62,7 +62,8 @@ const FIELD_TEMPLATES: Record<string, HeaderField[]> = {
     },
     {
       key: "Copyright",
-      placeholder: "Copyright (c) {{currentYear}} {{author}} All Rights Reserved",
+      placeholder:
+        "Copyright (c) {{currentYear}} {{author}} All Rights Reserved",
       showIf: (c) => c.get("copyright", true),
     },
     { key: "Description", placeholder: "" },
@@ -113,6 +114,36 @@ function formatDate(date: Date, format: string): string {
   };
   return format.replace(/YYYY|MM|DD|HH|mm|ss/g, (matched) => map[matched]);
 }
+
+/**
+ * 从文本的前几行中提取已有的字段名。
+ * @param text
+ * @param maxLines
+ * @returns
+ */
+function extractFieldNamesFromHeader(text: string, maxLines = 15): string[] {
+  const lines = text.split("\n").slice(0, maxLines);
+  const headerChunk = lines.join("\n");
+  const fieldRegex = /@\w+/g;
+  const matches = headerChunk.match(fieldRegex);
+  return matches ? [...new Set(matches)] : [];
+}
+/**
+ *  根据配置决定是否对字段名进行对齐处理。
+ * @param fieldName
+ * @param allFieldNames
+ * @param shouldAlign
+ * @returns
+ */
+function getPaddedFieldName(
+  fieldName: string,
+  allFieldNames: string[],
+  shouldAlign: boolean
+): string {
+  if (!shouldAlign) return fieldName;
+  const maxWidth = Math.max(...allFieldNames.map((name) => name.length)) + 1;
+  return fieldName.padEnd(maxWidth);
+}
 /**
  * 根据字段列表生成格式化后的头部注释。
  */
@@ -126,18 +157,15 @@ function renderAlignedHeader(
   lastEditTime: string
 ): string | null {
   const shouldAlign = config.get<boolean>("alignFields", true);
+  const useColon = config.get<boolean>("useColonInFields", true); // <-- 新增
 
   // 1. 过滤掉根据配置不需要显示的字段
   const visibleFields = fields.filter((field) => {
-    if (field.showIf) {
-      return field.showIf(config);
-    }
+    if (field.showIf) return field.showIf(config);
     return true;
   });
 
-  if (visibleFields.length === 0) {
-    return null;
-  }
+  if (visibleFields.length === 0) return null;
 
   // 2. 计算最长的字段名（加上 '@' 前缀）
   const prefix = languageId === "python" ? "#" : "*";
@@ -152,8 +180,7 @@ function renderAlignedHeader(
     commentLines.push("/***");
   }
 
-  for (let i = 0; i < visibleFields.length; i++) {
-    const field = visibleFields[i];
+  for (const field of visibleFields) {
     const atKey = `@${field.key}`;
 
     // 对齐逻辑：如果启用了对齐，则用空格补齐到 maxWidth
@@ -167,11 +194,14 @@ function renderAlignedHeader(
       .replace(/{{lastEditTime}}/g, lastEditTime)
       .replace(/{{currentYear}}/g, new Date().getFullYear().toString());
 
-    // 构建完整行
+    // 👇 核心：根据配置决定是否加冒号
+    const separator = useColon ? ":" : "";
+    const lineContent = `${paddedKey}${separator} ${value}`.trimEnd();
+
     const line =
       languageId === "python"
-        ? `${prefix} ${paddedKey} ${value}`
-        : ` ${prefix} ${paddedKey} ${value}`;
+        ? `${prefix} ${lineContent}`
+        : ` ${prefix} ${lineContent}`;
 
     commentLines.push(line);
   }
@@ -269,7 +299,6 @@ async function getGitUserInfo(): Promise<{ name: string; email: string }> {
 }
 
 // 核心：插入新的头部注释
-// 修改原有的 insertHeaderComment 函数，让它复用新函数
 async function insertHeaderComment(editor: vscode.TextEditor) {
   const config = vscode.workspace.getConfiguration("smartFileHeader");
   const document = editor.document;
@@ -306,7 +335,6 @@ function hasExistingHeader(
 }
 
 // 核心：更新已存在的头部注释
-// 重写 updateHeaderComment 函数
 async function updateHeaderComment(document: vscode.TextDocument) {
   const config = vscode.workspace.getConfiguration("smartFileHeader");
   const shouldAutoInsert = config.get<boolean>("autoInsertOnSave", false);
@@ -314,6 +342,11 @@ async function updateHeaderComment(document: vscode.TextDocument) {
   // 如果既不更新也不自动插入，直接退出
   const shouldUpdateLastEditors = config.get<boolean>("lastEditors", true);
   const shouldUpdateLastEditTime = config.get<boolean>("lastEditTime", true);
+
+  // 新增：获取最小更新间隔（秒）
+  const minIntervalSec = 120; // 默认 120 秒;
+  const minIntervalMs = minIntervalSec * 1000;
+
   if (
     !shouldUpdateLastEditors &&
     !shouldUpdateLastEditTime &&
@@ -327,6 +360,7 @@ async function updateHeaderComment(document: vscode.TextDocument) {
 
   // 1. 首先，检查文件是否已经有我们的文件头
   const alreadyHasHeader = hasExistingHeader(text);
+  const fileUri = document.uri.toString();
 
   // 2. 如果没有文件头，并且启用了自动插入
   if (!alreadyHasHeader && shouldAutoInsert) {
@@ -355,16 +389,70 @@ async function updateHeaderComment(document: vscode.TextDocument) {
   // 3. 如果已经有文件头，则执行原有的更新逻辑
   if (alreadyHasHeader) {
     let updatedText = text;
-    const now = new Date();
-    const formattedTime = formatDate(
-      now,
-      config.get("dateFormat", "YYYY-MM-DD HH:mm:ss")
-    );
+    let needUpdateTime = false;
 
     if (shouldUpdateLastEditTime) {
-      const timeRegex = /(\*\s*@LastEditTime:\s*|\#\s*@LastEditTime:\s*)\S.*$/m;
-      if (timeRegex.test(updatedText)) {
-        updatedText = updatedText.replace(timeRegex, `$1${formattedTime}`);
+      const now = Date.now();
+      // 判断是否满足最小间隔
+      if (minIntervalMs <= 0) {
+        // 间隔为 0，每次都更新
+        needUpdateTime = true;
+      } else {
+        const lastUpdate = lastUpdateTimeMap.get(fileUri) || 0;
+        if (now - lastUpdate >= minIntervalMs) {
+          needUpdateTime = true;
+        }
+      }
+      // 需要更新最后编辑时间
+      if (needUpdateTime) {
+        const formattedTime = formatDate(
+          new Date(),
+          config.get("dateFormat", "YYYY-MM-DD HH:mm:ss")
+        );
+        const shouldAlign = config.get<boolean>("alignFields", true);
+        const useColon = config.get<boolean>("useColonInFields", true);
+
+        // 获取所有字段名以计算最大宽度
+        const fieldNames = extractFieldNamesFromHeader(updatedText);
+
+        // 构建新的行内容
+        const fieldName = "@LastEditTime";
+        const paddedFieldName = getPaddedFieldName(
+          fieldName,
+          fieldNames,
+          shouldAlign
+        );
+        const separator = useColon ? ":" : "";
+        const newLine = `${paddedFieldName}${separator} ${formattedTime}`;
+
+        // 使用更精确的正则来匹配整行
+        const lineRegex = new RegExp(
+          `^\\s*[\\*\\#]\\s*${fieldName.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          )}(:\\s*|\\s+).*$`,
+          "m"
+        );
+        updatedText = updatedText.replace(lineRegex, (match) => {
+          const prefix = match.match(/^(\s*[*\#]\s*)/)?.[1] || "";
+          return `${prefix}${newLine}`;
+        });
+
+        lastUpdateTimeMap.set(fileUri, Date.now());
+        // // 匹配两种格式：
+        // // 使用已优化的正则（支持带/不带冒号）
+        // const timeRegex = /^(\s*[*\#]\s*@LastEditTime)(:\s*|\s+)(.*)$/m;
+        // if (timeRegex.test(updatedText)) {
+        //   const useColon = config.get<boolean>("useColonInFields", true);
+        //   const separator = useColon ? ": " : " ";
+        //   updatedText = updatedText.replace(
+        //     timeRegex,
+        //     `$1${separator}${formattedTime}`
+        //   );
+
+        //   // ✅ 关键：记录本次更新时间
+        //   lastUpdateTimeMap.set(fileUri, Date.now());
+        // }
       }
     }
 
@@ -375,11 +463,43 @@ async function updateHeaderComment(document: vscode.TextDocument) {
         author = gitInfo.name;
       }
       if (author) {
-        const editorsRegex =
-          /(\*\s*@LastEditors:\s*|\#\s*@LastEditors:\s*)\S.*$/m;
-        if (editorsRegex.test(updatedText)) {
-          updatedText = updatedText.replace(editorsRegex, `$1${author}`);
-        }
+        const shouldAlign = config.get<boolean>("alignFields", true);
+        const useColon = config.get<boolean>("useColonInFields", true);
+
+        // 获取所有字段名以计算最大宽度
+        const fieldNames = extractFieldNamesFromHeader(updatedText);
+
+        // 构建新的行内容
+        const fieldName = "@LastEditors";
+        const paddedFieldName = getPaddedFieldName(
+          fieldName,
+          fieldNames,
+          shouldAlign
+        );
+        const separator = useColon ? ":" : "";
+        const newLine = `${paddedFieldName}${separator} ${author}`;
+
+        // 使用更精确的正则来匹配整行
+        const lineRegex = new RegExp(
+          `^\\s*[\\*\\#]\\s*${fieldName.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          )}(:\\s*|\\s+).*$`,
+          "m"
+        );
+        updatedText = updatedText.replace(lineRegex, (match) => {
+          const prefix = match.match(/^(\s*[*\#]\s*)/)?.[1] || "";
+          return `${prefix}${newLine}`;
+        });
+        // const editorsRegex = /^(\s*[*\#]\s*@LastEditors)(:\s*|\s+)(.*)$/m;
+        // if (editorsRegex.test(updatedText)) {
+        //   const useColon = config.get<boolean>("useColonInFields", true);
+        //   const separator = useColon ? ": " : " ";
+        //   updatedText = updatedText.replace(
+        //     editorsRegex,
+        //     `$1${separator}${author}`
+        //   );
+        // }
       }
     }
 
@@ -394,7 +514,7 @@ async function updateHeaderComment(document: vscode.TextDocument) {
     }
   }
 }
-
+const lastUpdateTimeMap = new Map<string, number>();
 // 主激活函数
 export function activate(context: vscode.ExtensionContext) {
   // 1. 注册 "Insert Header" 命令
@@ -422,6 +542,11 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(insertCmd, saveListener);
+  context.subscriptions.push(
+    vscode.workspace.onDidCloseTextDocument((doc) => {
+      lastUpdateTimeMap.delete(doc.uri.toString());
+    })
+  );
 }
 
 export function deactivate() {
