@@ -140,7 +140,9 @@ function getPaddedFieldName(
   allFieldNames: string[],
   shouldAlign: boolean
 ): string {
-  if (!shouldAlign) return fieldName;
+  if (!shouldAlign) {
+    return fieldName;
+  }
   const maxWidth = Math.max(...allFieldNames.map((name) => name.length)) + 1;
   return fieldName.padEnd(maxWidth);
 }
@@ -161,7 +163,9 @@ function renderAlignedHeader(
 
   // 1. 过滤掉根据配置不需要显示的字段
   const visibleFields = fields.filter((field) => {
-    if (field.showIf) return field.showIf(config);
+    if (field.showIf) {
+      return field.showIf(config);
+    }
     return true;
   });
 
