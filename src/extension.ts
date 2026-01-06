@@ -339,9 +339,26 @@ function hasExistingHeader(
       line.includes("@LastEditTime")
   );
 }
+function isLanguageSupported(languageId: string): boolean {
+  const config = vscode.workspace.getConfiguration("smartFileHeader");
+  const supported = config.get<string[]>("supportedLanguages", [
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact",
+    "jsx",
+    "tsx",
+  ]);
+  return supported.includes(languageId);
+}
 
 // 核心：更新已存在的头部注释
 async function updateHeaderComment(document: vscode.TextDocument) {
+  // 在 updateHeaderComment 开头调用
+  if (!isLanguageSupported(document.languageId)) {
+    return;
+  }
+
   const config = vscode.workspace.getConfiguration("smartFileHeader");
   const shouldAutoInsert = config.get<boolean>("autoInsertOnSave", false);
 
@@ -445,20 +462,6 @@ async function updateHeaderComment(document: vscode.TextDocument) {
         });
 
         lastUpdateTimeMap.set(fileUri, Date.now());
-        // // 匹配两种格式：
-        // // 使用已优化的正则（支持带/不带冒号）
-        // const timeRegex = /^(\s*[*\#]\s*@LastEditTime)(:\s*|\s+)(.*)$/m;
-        // if (timeRegex.test(updatedText)) {
-        //   const useColon = config.get<boolean>("useColonInFields", true);
-        //   const separator = useColon ? ": " : " ";
-        //   updatedText = updatedText.replace(
-        //     timeRegex,
-        //     `$1${separator}${formattedTime}`
-        //   );
-
-        //   // ✅ 关键：记录本次更新时间
-        //   lastUpdateTimeMap.set(fileUri, Date.now());
-        // }
       }
     }
 
@@ -497,15 +500,6 @@ async function updateHeaderComment(document: vscode.TextDocument) {
           const prefix = match.match(/^(\s*[*\#]\s*)/)?.[1] || "";
           return `${prefix}${newLine}`;
         });
-        // const editorsRegex = /^(\s*[*\#]\s*@LastEditors)(:\s*|\s+)(.*)$/m;
-        // if (editorsRegex.test(updatedText)) {
-        //   const useColon = config.get<boolean>("useColonInFields", true);
-        //   const separator = useColon ? ": " : " ";
-        //   updatedText = updatedText.replace(
-        //     editorsRegex,
-        //     `$1${separator}${author}`
-        //   );
-        // }
       }
     }
 
@@ -541,6 +535,10 @@ export function activate(context: vscode.ExtensionContext) {
     async (event) => {
       // 只处理普通文件
       if (event.document.uri.scheme !== "file") {
+        return;
+      }
+      // 👇 必须在这里判断语言！
+      if (!isLanguageSupported(event.document.languageId)) {
         return;
       }
       await updateHeaderComment(event.document);

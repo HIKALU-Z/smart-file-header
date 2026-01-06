@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/HIKALU-Z/smart-file-header.git"
   },
-  "version": "1.0.2",
+  "version": "1.0.3",
   "engines": {
     "vscode": "^1.104.1"
   },
@@ -15,7 +15,13 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact",
+    "onLanguage:jsx",
+    "onLanguage:tsx"
   ],
   "main": "./dist/extension.js",
   "icon": "./logo.png",
@@ -24,6 +30,10 @@
       {
         "command": "smart-file-header.insertHeader",
         "title": "smart-file-header:Insert File Header Comment"
+      },
+      {
+        "command": "smartFileHeader.openSettings",
+        "title": "Smart File Header: Open Settings"
       }
     ],
     "configuration": [
@@ -84,6 +94,21 @@
             "type": "boolean",
             "default": true,
             "description": "Whether to use a colon after header fields (e.g., '@Author: name' vs '@Author name')."
+          },
+          "smartFileHeader.supportedLanguages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "javascript",
+              "typescript",
+              "javascriptreact",
+              "typescriptreact",
+              "jsx",
+              "tsx"
+            ],
+            "description": "Languages to enable header for."
           }
         }
       }
