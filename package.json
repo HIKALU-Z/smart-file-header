@@ -7,9 +7,9 @@
     "type": "git",
     "url": "https://github.com/HIKALU-Z/smart-file-header.git"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "engines": {
-    "vscode": "^1.107.0"
+    "vscode": "^1.104.1"
   },
   "categories": [
     "Other"
@@ -25,58 +25,69 @@
         "command": "smart-file-header.insertHeader",
         "title": "smart-file-header:Insert File Header Comment"
       }
-    ]
-  },
-  "configuration": {
-    "type": "object",
-    "title": "Smart File Header Configuration",
-    "properties": {
-      "smartFileHeader.author": {
-        "type": "string",
-        "default": "",
-        "description": "Your name. If empty, will try to use 'git config user.name'."
+    ],
+    "configuration": [
+      {
+        "title": "Smart File Header",
+        "properties": {
+          "smartFileHeader.author": {
+            "type": "string",
+            "default": "",
+            "description": "Your name. If empty, will try to use 'git config user.name'."
+          },
+          "smartFileHeader.email": {
+            "type": "string",
+            "default": "",
+            "description": "Your email. If empty, will try to use 'git config user.email'."
+          },
+          "smartFileHeader.lastEditors": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to add/update the 'LastEditors' field."
+          },
+          "smartFileHeader.lastEditTime": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to add/update the 'LastEditTime' field."
+          },
+          "smartFileHeader.copyright": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to add/update the 'Copyright' field."
+          }
+        }
       },
-      "smartFileHeader.email": {
-        "type": "string",
-        "default": "",
-        "description": "Your email. If empty, will try to use 'git config user.email'."
+      {
+        "title": "Smart File Header: Formatting",
+        "properties": {
+          "smartFileHeader.dateFormat": {
+            "type": "string",
+            "default": "YYYY-MM-DD HH:mm:ss",
+            "description": "Date format for LastEditTime. Supports YYYY, MM, DD, HH, mm, ss."
+          }
+        }
       },
-      "smartFileHeader.lastEditors": {
-        "type": "boolean",
-        "default": true,
-        "description": "Whether to add/update the 'LastEditors' field."
-      },
-      "smartFileHeader.lastEditTime": {
-        "type": "boolean",
-        "default": true,
-        "description": "Whether to add/update the 'LastEditTime' field."
-      },
-      "smartFileHeader.copyright": {
-        "type": "boolean",
-        "default": true,
-        "description": "Whether to add/update the 'Copyright' field."
-      },
-      "smartFileHeader.dateFormat": {
-        "type": "string",
-        "default": "YYYY-MM-DD HH:mm:ss",
-        "description": "Date format for LastEditTime. Supports YYYY, MM, DD, HH, mm, ss."
-      },
-      "smartFileHeader.autoInsertOnSave": {
-        "type": "boolean",
-        "default": false,
-        "description": "Automatically insert a header comment on save if the file doesn't have one."
-      },
-      "smartFileHeader.alignFields": {
-        "type": "boolean",
-        "default": true,
-        "description": "Align the header fields (e.g., @Author, @Date) to the same width for better readability."
-      },
-      "smartFileHeader.useColonInFields": {
-        "type": "boolean",
-        "default": true,
-        "description": "Whether to use a colon after header fields (e.g., '@Author: name' vs '@Author name')."
+      {
+        "title": "Smart File Header: Advanced",
+        "properties": {
+          "smartFileHeader.autoInsertOnSave": {
+            "type": "boolean",
+            "default": false,
+            "description": "Automatically insert a header comment on save if the file doesn't have one."
+          },
+          "smartFileHeader.alignFields": {
+            "type": "boolean",
+            "default": true,
+            "description": "Align the header fields (e.g., @Author, @Date) to the same width for better readability."
+          },
+          "smartFileHeader.useColonInFields": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether to use a colon after header fields (e.g., '@Author: name' vs '@Author name')."
+          }
+        }
       }
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
@@ -95,7 +106,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "@types/vscode": "^1.107.0",
+    "@types/vscode": "^1.104.1",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.1",

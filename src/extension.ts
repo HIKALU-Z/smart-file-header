@@ -548,11 +548,24 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(insertCmd, saveListener);
+  // 清理关闭的文档的更新时间记录
   context.subscriptions.push(
     vscode.workspace.onDidCloseTextDocument((doc) => {
       lastUpdateTimeMap.delete(doc.uri.toString());
     })
   );
+
+  // 3. 注册打开设置命令
+  const openSettings = vscode.commands.registerCommand(
+    "smartFileHeader.openSettings",
+    () => {
+      vscode.commands.executeCommand(
+        "workbench.action.openSettings",
+        "smartFileHeader"
+      );
+    }
+  );
+  context.subscriptions.push(openSettings);
 }
 
 export function deactivate() {
