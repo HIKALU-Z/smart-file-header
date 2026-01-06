@@ -169,7 +169,9 @@ function renderAlignedHeader(
     return true;
   });
 
-  if (visibleFields.length === 0) return null;
+  if (visibleFields.length === 0) {
+    return null;
+  }
 
   // 2. 计算最长的字段名（加上 '@' 前缀）
   const prefix = languageId === "python" ? "#" : "*";
