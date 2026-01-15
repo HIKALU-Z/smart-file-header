@@ -15,3 +15,7 @@
 - [vscode 插件开发示例](https://github.com/microsoft/vscode-extension-samples)
 - [vscode 插件发布文档](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 - [vscode 开发指南](https://juejin.cn/post/7250375753598894135)
+
+## 优秀同类插件推荐
+- [better-comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) - 一个增强注释功能的插件，可以参考其注释解析方式。
+- [file-header-comment](https://marketplace.visualstudio.com/items?itemName=stevencl.add-file-header-comment) - 一个功能类似的插件，可以参考其实现方式。
