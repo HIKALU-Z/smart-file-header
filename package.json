@@ -141,7 +141,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-    "release": "release-it"
+    "release": "release-it --no-npm"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^10.0.4",

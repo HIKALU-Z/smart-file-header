@@ -63,7 +63,7 @@
         "commitMessage": "chore: Release v${version}"
     },
     "github": {
-        "release": true,
+        "release": false,
         "draft": false
     }
 }

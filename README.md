@@ -94,6 +94,13 @@ you can customize these settings in your VS Code settings.json file.
     {
       "scope": "constant.other.email.fileheader",
       "settings": { "foreground": "#4EC9B0" }
+    },
+    {
+      "scope": "constant.other.author.fileheader",
+      "settings": {
+        "foreground": "#CE9178",
+        "fontStyle": "italic bold"
+      }
     }
   ]
 }

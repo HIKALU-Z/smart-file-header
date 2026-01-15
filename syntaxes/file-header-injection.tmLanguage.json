@@ -11,19 +11,37 @@
         "file-header": {
             "patterns": [
                 {
-                    "match": "(@[A-Za-z]+)(:?)",
+                    "comment": "Match @Fieldname   : value or @Fieldname   value",
+                    "match": "(@)([A-Za-z][A-Za-z0-9]*)(\\s+)(:)?",
                     "captures": {
                         "1": {
-                            "name": "keyword.control.fileheader.field"
+                            "name": "punctuation.definition.annotation.fileheader"
                         },
                         "2": {
+                            "name": "keyword.control.fileheader.field"
+                        },
+                        "3": {
+                            "name": "comment.whitespace.fileheader"
+                        },
+                        "4": {
                             "name": "punctuation.separator.fileheader.colon"
                         }
                     }
                 },
                 {
-                    "match": "\\b(\\d{4}-\\d{2}-\\d{2}|\\d{4}/\\d{2}/\\d{2})\\b",
-                    "name": "constant.other.date.fileheader"
+                    "comment": "Date and datetime",
+                    "match": "\\b(\\d{4}-\\d{2}-\\d{2}(?:\\s+\\d{1,2}:\\d{2}(?::\\d{2})?)?)\\b",
+                    "name": "constant.other.datetime.fileheader"
+                },
+                {
+                    "comment": "Author name",
+                    "match": "\\b[Hh][Ii][Kk][Aa][Ll][Uu]\\b",
+                    "name": "constant.other.author.fileheader"
+                },
+                {
+                    "comment": "Email addresses",
+                    "match": "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b",
+                    "name": "constant.other.email.fileheader"
                 }
             ]
         }
