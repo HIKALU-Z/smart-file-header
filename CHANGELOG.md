@@ -1,3 +1,28 @@
+# Changelog
+
+## 1.0.5 (2026-01-15)
+
+### ✨ Features | 新功能
+
+* 2nd edition ([8151aff](https://github.com/HIKALU-Z/smart-file-header/commit/8151affff7b5fbc5364fc9c633983a1e182a9094))
+* add configuration ([ea0eecb](https://github.com/HIKALU-Z/smart-file-header/commit/ea0eecb02cb3fb4618dd860c51a68d843b51d246))
+* add language limit only support js/ts/jsx/tsx ([e52aa9c](https://github.com/HIKALU-Z/smart-file-header/commit/e52aa9ccaad77ff9aa12468b5aae6c44213a40f8))
+* add text meta grammars ([06b63e7](https://github.com/HIKALU-Z/smart-file-header/commit/06b63e79f8fad2d5cb9e39cf7285e98423e813bd))
+* add use conlon functionality ([b0bf5f4](https://github.com/HIKALU-Z/smart-file-header/commit/b0bf5f4a90fce640a5d5f819461a5c5f001bd285))
+* first beta ([f106715](https://github.com/HIKALU-Z/smart-file-header/commit/f106715f5eb32f27231234e0358ea1e5932ebae6))
+* update logo add new features ([f665033](https://github.com/HIKALU-Z/smart-file-header/commit/f665033a4efcb80d012748852784a36e0843a0af))
+* update readme and tmjson ([0b04228](https://github.com/HIKALU-Z/smart-file-header/commit/0b04228b3fbffd0bb2fd3a97454e74c496839fdd))
+
+### 🐛 Bug Fixes | Bug 修复
+
+* fix barket error ([4f6fb8d](https://github.com/HIKALU-Z/smart-file-header/commit/4f6fb8d82613064ed6f8ea1b804b0e9e9e9a5e14))
+
+### 🎫 Chores | 其他更新
+
+* add license ([b32260d](https://github.com/HIKALU-Z/smart-file-header/commit/b32260da5f0e80b76ca31f34745f2f9455dbe1cc))
+* prepare to release ([f1637a8](https://github.com/HIKALU-Z/smart-file-header/commit/f1637a863863294f49dd9e4f476e5142683d2bfe))
+* remove unused file ([3afe142](https://github.com/HIKALU-Z/smart-file-header/commit/3afe142730ea784dfa693a66b9c9816a1f9fed1b))
+
 # Change Log
 
 All notable changes to the "file-header-extension" extension will be documented in this file.
