@@ -65,5 +65,36 @@ you can customize these settings in your VS Code settings.json file.
 ### 1.0.1
 
 - 更新 readme.md 和 logo
+
+### 1.0.2
+
 - 增加 alignFields 设置，用于控制是否对齐头部字段。
+
+### 1.0.3
+
 - 增加 useColonInFields 设置，用于控制是否在头部字段后使用冒号。
+
+### 1.0.4
+
+- 增加 release-it 配置，用于自动化发布流程。
+- 增加 textMate 支持
+  如果你需要配置注释中的一些字段的颜色，可以在`settings.json`中修改，参考下面的配置示例：
+
+```json
+"editor.tokenColorCustomizations": {
+  "textMateRules": [
+    {
+      "scope": "keyword.control.fileheader.field",
+      "settings": { "foreground": "#C586C0", "fontStyle": "bold" }
+    },
+    {
+      "scope": "constant.other.datetime.fileheader",
+      "settings": { "foreground": "#B5CEA8" }
+    },
+    {
+      "scope": "constant.other.email.fileheader",
+      "settings": { "foreground": "#4EC9B0" }
+    }
+  ]
+}
+```
