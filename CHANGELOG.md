@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.5](https://github.com/HIKALU-Z/smart-file-header/compare/1.0.7...1.0.5) (2026-01-15)
+
+### 🐛 Bug Fixes | Bug 修复
+
+* fix up package script ([642060f](https://github.com/HIKALU-Z/smart-file-header/commit/642060f97dac2d9c2ec7dad69973e63388106bcd))
+
 ## [1.0.7](https://github.com/HIKALU-Z/smart-file-header/compare/1.0.6...1.0.7) (2026-01-15)
 
 ### 🐛 Bug Fixes | Bug 修复
