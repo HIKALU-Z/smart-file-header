@@ -65,5 +65,9 @@
     "github": {
         "release": false,
         "draft": false
+    },
+    "npm": {
+        "publish": false,
+        "version": true
     }
 }
