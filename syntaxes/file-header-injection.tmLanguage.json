@@ -1,0 +1,31 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "scopeName": "meta.fileheader.injection",
+    "injectionSelector": "L:comment.block - (comment.block.documentation)",
+    "patterns": [
+        {
+            "include": "#file-header"
+        }
+    ],
+    "repository": {
+        "file-header": {
+            "patterns": [
+                {
+                    "match": "(@[A-Za-z]+)(:?)",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.control.fileheader.field"
+                        },
+                        "2": {
+                            "name": "punctuation.separator.fileheader.colon"
+                        }
+                    }
+                },
+                {
+                    "match": "\\b(\\d{4}-\\d{2}-\\d{2}|\\d{4}/\\d{2}/\\d{2})\\b",
+                    "name": "constant.other.date.fileheader"
+                }
+            ]
+        }
+    }
+}
