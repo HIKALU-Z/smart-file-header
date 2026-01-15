@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.6](https://github.com/HIKALU-Z/smart-file-header/compare/1.0.5...1.0.6) (2026-01-15)
+
+### 🎫 Chores | 其他更新
+
+* 增加notes内容，测试release ([4cf01a7](https://github.com/HIKALU-Z/smart-file-header/commit/4cf01a71394d6588831a49572200c015269d1294))
+
 ## 1.0.5 (2026-01-15)
 
 ### ✨ Features | 新功能
