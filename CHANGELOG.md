@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.7](https://github.com/HIKALU-Z/smart-file-header/compare/1.0.6...1.0.7) (2026-01-15)
+
+### 🐛 Bug Fixes | Bug 修复
+
+* fix up release.json ([dd4b0bc](https://github.com/HIKALU-Z/smart-file-header/commit/dd4b0bc5bdbf9454669e589e135a256d0e9f214f))
+
 ## [1.0.6](https://github.com/HIKALU-Z/smart-file-header/compare/1.0.5...1.0.6) (2026-01-15)
 
 ### 🎫 Chores | 其他更新
